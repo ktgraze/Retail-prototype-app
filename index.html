@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Product Description Generator</title>
+</head>
+<body>
+
+    <h1>Generate Product Descriptions</h1>
+
+    <form id="description-form" onsubmit="event.preventDefault(); generateDescription();">
+        <div>
+            <label for="product_name">Product Name:</label>
+            <input type="text" id="product_name" required>
+        </div>
+        
+        <div>
+            <label for="keywords">Keywords (comma-separated):</label>
+            <input type="text" id="keywords" required>
+        </div>
+
+        <div>
+            <label for="tone">Tone:</label>
+            <select id="tone">
+                <option value="neutral">Neutral</option>
+                <option value="friendly">Friendly</option>
+                <option value="formal">Formal</option>
+                <option value="casual">Casual</option>
+                <option value="persuasive">Persuasive</option>
+                <option value="enthusiastic">Enthusiastic</option>
+                <option value="luxurious">Luxurious</option>
+                <option value="humorous">Humorous</option>
+            </select>
+        </div>
+
+        <button type="submit">Generate Description</button>
+    </form>
+
+    <h2>Generated Product Description:</h2>
+    <p id="description-output"></p>
+
+    <script>
+        function generateDescription() {
+            console.log('Form submitted');
+
+            const productName = document.getElementById('product_name').value.trim();
+            const keywordsInput = document.getElementById('keywords').value.trim();
+            const tone = document.getElementById('tone').value;
+
+            if (!productName || !keywordsInput) {
+                alert("Please enter a product name and keywords.");
+                return;
+            }
+
+            fetch('/generate-description', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    product_name: productName,
+                    keywords: keywordsInput.split(',').map(kw => kw.trim()),
+                    tone: tone
+                })
+            })
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error("Network response was not ok");
+                }
+                return response.json();
+            })
+            .then(data => {
+                if (data.error) {
+                    console.error('Error:', data.error);
+                    alert('Error generating description: ' + data.error);
+                } else {
+                    document.getElementById('description-output').innerText = data.description || 'No description generated.';
+                }
+            })
+            .catch(error => {
+                console.error('Fetch Error:', error);
+                alert("Failed to connect to the server.");
+            });
+        }
+    </script>
+
+</body>
+</html>
+
+
+
+
